@@ -1,0 +1,102 @@
+[theme]
+
+# ============================================================
+# IDENTIDADE LOGITECH EXPRESS
+# ============================================================
+
+base = "light"
+
+# Cor principal da marca
+primaryColor = "#E63923"
+
+# Fundo principal
+backgroundColor = "#F8F8F8"
+
+# Fundo secundário / widgets / cards
+secondaryBackgroundColor = "#FFFFFF"
+
+# Cor padrão dos textos
+textColor = "#0B1F44"
+
+# ============================================================
+# TIPOGRAFIA
+# ============================================================
+
+font = "sans-serif"
+headingFont = "sans-serif"
+
+baseFontSize = 16
+baseFontWeight = 400
+
+headingFontSizes = [
+    "2.5rem",
+    "2rem",
+    "1.5rem",
+    "1.25rem",
+    "1.1rem",
+    "1rem"
+]
+
+headingFontWeights = [
+    700,
+    700,
+    700,
+    600,
+    600,
+    600
+]
+
+# ============================================================
+# BORDAS
+# ============================================================
+
+borderColor = "#D9D9D9"
+
+showWidgetBorder = true
+showSidebarBorder = true
+
+baseRadius = "0.75rem"
+buttonRadius = "0.75rem"
+
+# ============================================================
+# TABELAS / DATAFRAMES
+# ============================================================
+
+dataframeBorderColor = "#D9D9D9"
+dataframeHeaderBackgroundColor = "#0B1F44"
+
+# ============================================================
+# CÓDIGO
+# ============================================================
+
+codeBackgroundColor = "#F0F2F6"
+codeTextColor = "#0B1F44"
+
+# ============================================================
+# LINKS
+# ============================================================
+
+linkColor = "#E63923"
+linkUnderline = false
+
+# ============================================================
+# PALETA DA MARCA
+# ============================================================
+
+redColor = "#E63923"
+orangeColor = "#FF5A3D"
+blueColor = "#0B1F44"
+grayColor = "#D9D9D9"
+
+# ============================================================
+# GRÁFICOS
+# ============================================================
+
+chartCategoricalColors = [
+    "#0B1F44",
+    "#E63923",
+    "#FF5A3D",
+    "#D9D9D9",
+    "#12366F",
+    "#F8B4A8"
+]
