@@ -1,9 +1,9 @@
 import streamlit as st
 from streamlit_folium import st_folium
-from services.geoprocessamento_service import GeoprocessamentoService
+from services.telemetria_service import TelemetriaService
 from src.pages.home.criar_mapa import criar_mapa
 
-telemetria_service = GeoprocessamentoService()
+telemetria_service = TelemetriaService()
 
 col1, col2 = st.columns(2) 
 
