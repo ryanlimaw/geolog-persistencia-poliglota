@@ -8,7 +8,7 @@ class TelemetriaService:
     def buscar_todos(self):
         return list(self.mongo["telemetria"].find())
 
-    def buscar_veiculos_por_raio(self, latitude, longitude, raio) -> list[dict[str, Any]]:
+    def buscar_veiculos_e_distancia(self, latitude, longitude, raio) -> list[dict[str, Any]]:
         pipeline = [
             {
                 "$geoNear": {
