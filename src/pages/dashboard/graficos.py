@@ -10,7 +10,9 @@ import plotly.graph_objects as go
 # Cores oficiais do tema em src/.streamlit/config.toml.
 AZUL_MARCA = st.get_option("theme.textColor")
 VERMELHO_MARCA = st.get_option("theme.primaryColor")
-CINZA_TEXTO = st.get_option("theme.secondaryBackgroundColor")
+# Texto do centro da rosca: a cor de texto do tema (a de fundo secundário é
+# branca, e o total ficava invisível sobre o cartão).
+CINZA_TEXTO = st.get_option("theme.textColor")
 CORES_CATEGORIAS = st.get_option("theme.chartCategoricalColors")
 
 MARGENS = dict(l=10, r=10, t=10, b=10)
@@ -42,7 +44,8 @@ def grafico_historico_temperatura(historico: pd.DataFrame) -> go.Figure:
         margin=MARGENS,
         separators=SEPARADORES,
     )
-    figura.update_xaxes(tickformat="%H:%M")
+    # Dia e hora: com leituras simuladas o histórico passa a cobrir mais de um dia.
+    figura.update_xaxes(tickformat="%d/%m %H:%M")
     figura.update_yaxes(ticksuffix=" °C", zeroline=True, zerolinecolor="#D9D9D9")
     return figura
 

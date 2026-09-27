@@ -1,8 +1,14 @@
+from datetime import timezone
+from zoneinfo import ZoneInfo
+
 import folium
 
 from services.veiculos_service import VeiculoService
 
 veiculo_service = VeiculoService()
+
+# Horários guardados em UTC, exibidos na hora de Brasília.
+FUSO_LOCAL = ZoneInfo("America/Recife")
 
 def criar_mapa(latitude: float, longitude: float, raio_km: float, geolog: list):
 
@@ -65,12 +71,28 @@ def criar_mapa(latitude: float, longitude: float, raio_km: float, geolog: list):
         modelo = veiculo.get("modelo", "Não informado")
         status = veiculo.get("status_motorista", "Não informado")
 
+        # Dados da própria leitura (MongoDB): mostram que o ponto é a leitura
+        # mais recente, inclusive depois de "Simular Movimentação".
+        temperatura = telemetria.get("temperatura")
+        velocidade = telemetria.get("velocidade")
+        horario = telemetria.get("timestamp")
+        temperatura_texto = f"{temperatura:.1f} °C".replace(".", ",") if temperatura is not None else "Não informada"
+        velocidade_texto = f"{velocidade:.0f} km/h" if velocidade is not None else "Não informada"
+        if horario is not None:
+            horario = horario if horario.tzinfo else horario.replace(tzinfo=timezone.utc)
+            horario_texto = horario.astimezone(FUSO_LOCAL).strftime("%d/%m/%Y %H:%M:%S")
+        else:
+            horario_texto = "Não informado"
+
         popup_html = f"""
             <div style="width: 220px">
                 <h4>Veículo</h4>
                 <b>Placa:</b> {placa}<br>
                 <b>Modelo:</b> {modelo}<br>
                 <b>Status:</b> {status}<br>
+                <b>Temperatura:</b> {temperatura_texto}<br>
+                <b>Velocidade:</b> {velocidade_texto}<br>
+                <b>Horário:</b> {horario_texto}<br>
                 <b>Distância:</b> {distancia_texto}
             </div>
         """

@@ -138,6 +138,6 @@ No Windows, com o ambiente virtual: `.\.venv\Scripts\python.exe -m streamlit run
 
 ## Páginas
 
-- **Geolog** (página inicial): busca geoespacial por raio a partir de um endereço ou de latitude e longitude. "Área Delimitada (Raio)" usa `$geoWithin`, e "Locais Próximos" usa `$geoNear`, com a distância até o ponto. Os veículos (posição atual) aparecem num mapa Folium com o círculo do raio, e placa, modelo e status vêm do PostgreSQL.
+- **Geolog** (página inicial): busca geoespacial por raio a partir de latitude e longitude. "Veículos dentro do raio" usa `$geoWithin`, e "Veículos mais próximos" usa `$geoNear`, com a distância até o ponto. Os veículos (posição atual) aparecem num mapa Folium com o círculo do raio; placa, modelo e status vêm do PostgreSQL. O botão **"Simular Movimentação"** grava uma nova leitura por veículo no MongoDB (pequena variação aleatória a partir da última posição) e atualiza o mapa; o Dashboard mostra os dados novos sem reiniciar a aplicação.
 - **Visão Geral**: a visão unificada da frota. O cadastro do PostgreSQL cruzado com a última leitura de telemetria do MongoDB: motorista, placa, modelo, status, última temperatura, velocidade, coordenadas e horário da leitura.
 - **Dashboard da Frota**: KPIs do estado atual (frota ativa, temperatura média atual, alertas de velocidade acima de 80 km/h e veículos parados, sempre pela última leitura de cada veículo), a situação de cada veículo, gráficos Plotly de velocidade atual, de motoristas por status e o histórico de temperatura por veículo.
