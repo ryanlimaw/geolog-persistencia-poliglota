@@ -7,17 +7,26 @@ from geopy.geocoders import Nominatim
 telemetria_service = TelemetriaService()
 geolocalizador = Nominatim(user_agent="geolog")
 
-latitude = None
-longitude = None
+MODOS_DE_BUSCA = ["Veículos dentro do raio", "Veículos mais próximos"]
 
-latitude = st.number_input( "Latitude", format="%.6f") 
-longitude = st.number_input( "Longitude", format="%.6f") 
-raio_km = st.number_input( "Raio de busca (km)", min_value=0.1, max_value=500.0, value=10.0, step=1.0)
+# Os campos lembram a última busca: ao sair da página e voltar, o Streamlit
+# apaga o estado dos widgets, e sem isso a latitude/longitude voltavam a 0 e
+# "Simular Movimentação" não conseguia refazer a consulta nem redesenhar o mapa.
+anterior = st.session_state.get("ultima_busca", {})
+st.session_state.setdefault("home_latitude", float(anterior.get("latitude", 0.0)))
+st.session_state.setdefault("home_longitude", float(anterior.get("longitude", 0.0)))
+st.session_state.setdefault("home_raio_km", float(anterior.get("raio_km", 10.0)))
+st.session_state.setdefault("home_tipo_consulta", anterior.get("tipo_consulta", MODOS_DE_BUSCA[0]))
+
+latitude = st.number_input("Latitude", format="%.6f", key="home_latitude")
+longitude = st.number_input("Longitude", format="%.6f", key="home_longitude")
+raio_km = st.number_input("Raio de busca (km)", min_value=0.1, max_value=500.0, step=1.0, key="home_raio_km")
 tipo_consulta = st.radio(
     "Modo de busca",
-    ["Veículos dentro do raio", "Veículos mais próximos"],
+    MODOS_DE_BUSCA,
     horizontal=True,
     help="Escolha entre listar a área encontrada ou ordenar os veículos pela distância.",
+    key="home_tipo_consulta",
 )
 
 if tipo_consulta == "Veículos dentro do raio":
@@ -43,7 +52,7 @@ with col_simular:
 
 if buscar_veiculos or simular_movimentacao:
     if buscar_veiculos and latitude == 0 and longitude == 0:
-        st.warning("Informe um endereço ou a latitude e a longitude do ponto de referência.")
+        st.warning("Informe a latitude e a longitude do ponto de referência.")
         st.stop()
 
     try:
