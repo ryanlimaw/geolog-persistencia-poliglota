@@ -15,8 +15,6 @@ A transportadora LogiTech Express opera uma frota de caminhões em diversas regi
 
 A aplicação cruza os dois bancos em memória (join poliglota) e apresenta os resultados num mapa, numa visão unificada da frota e num dashboard analítico.
 
-> O enunciado original sugere SQLite para a parte relacional; o grupo adotou **PostgreSQL**. As ordens de serviço citadas no estudo de caso não fazem parte desta implementação.
-
 ## Desenvolvedores
 
 - [Lucca de Sena Barbosa](https://github.com/luccasena)
