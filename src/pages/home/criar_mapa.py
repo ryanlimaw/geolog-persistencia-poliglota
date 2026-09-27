@@ -38,7 +38,6 @@ def criar_mapa(latitude: float, longitude: float, raio_km: float, geolog: list):
         fill_opacity=0.15,
     ).add_to(mapa)
 
-    # Cadastro da frota numa única consulta ao PostgreSQL (antes era uma por marcador).
     frota = {veiculo["veiculo_id"]: veiculo for veiculo in veiculo_service.listar_frota()} if geolog else {}
 
     for telemetria in geolog:
