@@ -1,17 +1,17 @@
-"""Gráficos Plotly do dashboard. Recebem DataFrames prontos; não consultam banco."""
-
 import pandas as pd
+import streamlit as st
 import plotly.express as px
 import plotly.graph_objects as go
 
-# Cores da marca (as mesmas de src/.streamlit/config.toml).
-AZUL_MARCA = "#0B1F44"
-VERMELHO_MARCA = "#E63923"
-CINZA_TEXTO = "#5B6475"
-# Na linha do tempo cada placa precisa de uma cor bem diferente da outra:
-# azul e vermelho da marca, e um cinza-azulado no lugar do laranja (que se
-# confundia com o vermelho).
-CORES_CATEGORIAS = ["#0B1F44", "#E63923", "#7A8699", "#FF5A3D", "#12366F", "#F8B4A8"]
+# ============================================================
+# CONSTANTES DE EXIBIÇÃO
+# ============================================================
+
+# Cores oficiais do tema em src/.streamlit/config.toml.
+AZUL_MARCA = st.get_option("theme.textColor")
+VERMELHO_MARCA = st.get_option("theme.primaryColor")
+CINZA_TEXTO = st.get_option("theme.secondaryBackgroundColor")
+CORES_CATEGORIAS = st.get_option("theme.chartCategoricalColors")
 
 MARGENS = dict(l=10, r=10, t=10, b=10)
 
@@ -46,9 +46,7 @@ def grafico_historico_temperatura(historico: pd.DataFrame) -> go.Figure:
     figura.update_yaxes(ticksuffix=" °C", zeroline=True, zerolinecolor="#D9D9D9")
     return figura
 
-
 def grafico_velocidade_atual(visao: pd.DataFrame, limite: float) -> go.Figure:
-    """Barras placa × última velocidade, com a linha do limite de alerta."""
     dados = visao.dropna(subset=["velocidade"]).sort_values("placa")
     em_alerta = dados["velocidade"] > limite
 
@@ -82,9 +80,7 @@ def grafico_velocidade_atual(visao: pd.DataFrame, limite: float) -> go.Figure:
     )
     return figura
 
-
 def grafico_status_motoristas(status: pd.DataFrame) -> go.Figure:
-    """Rosca com a distribuição dos motoristas por status, com o total no centro."""
     figura = px.pie(
         status,
         names="status",

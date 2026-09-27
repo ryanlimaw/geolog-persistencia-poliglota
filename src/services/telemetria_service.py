@@ -1,3 +1,5 @@
+from datetime import datetime, timedelta, timezone
+from random import uniform
 from typing import Any, Iterable, Optional
 
 from db.clients import obter_banco_mongodb
@@ -5,16 +7,14 @@ from db.clients import obter_banco_mongodb
 # Acima deste valor (km/h) a leitura é um alerta de velocidade.
 LIMITE_VELOCIDADE = 80
 
-
 # ============================================================
-# PIPELINES (funções puras: montam a consulta, não acessam o banco)
+# UTILITÁRIOS
 # ============================================================
 
 def _filtro_veiculos(veiculo_ids: Optional[Iterable[int]]) -> list[dict]:
     if veiculo_ids is None:
         return []
     return [{"$match": {"veiculo_id": {"$in": [int(v) for v in veiculo_ids]}}}]
-
 
 def _etapas_ultima_leitura() -> list[dict]:
     """
@@ -37,7 +37,6 @@ def _etapas_ultima_leitura() -> list[dict]:
         },
     ]
 
-
 def pipeline_ultima_telemetria(veiculo_ids: Optional[Iterable[int]] = None) -> list[dict]:
     return [
         *_filtro_veiculos(veiculo_ids),
@@ -56,14 +55,12 @@ def pipeline_ultima_telemetria(veiculo_ids: Optional[Iterable[int]] = None) -> l
         {"$sort": {"veiculo_id": 1}},
     ]
 
-
 def pipeline_historico_temperatura(veiculo_ids: Optional[Iterable[int]] = None) -> list[dict]:
     return [
         *_filtro_veiculos(veiculo_ids),
         {"$project": {"_id": 0, "veiculo_id": 1, "timestamp": 1, "temperatura": 1}},
         {"$sort": {"timestamp": 1, "veiculo_id": 1}},
     ]
-
 
 def pipeline_metricas_atuais(limite_velocidade: float = LIMITE_VELOCIDADE) -> list[dict]:
     """
@@ -108,7 +105,6 @@ def pipeline_metricas_atuais(limite_velocidade: float = LIMITE_VELOCIDADE) -> li
         },
     ]
 
-
 METRICAS_VAZIAS = {
     "veiculos_com_telemetria": 0,
     "temperatura_media": None,
@@ -117,7 +113,6 @@ METRICAS_VAZIAS = {
     "veiculos_em_alerta": [],
 }
 
-
 # ============================================================
 # SERVIÇO
 # ============================================================
@@ -125,8 +120,6 @@ METRICAS_VAZIAS = {
 class TelemetriaService:
     @property
     def mongo(self):
-        # Conexão pedida só na hora da consulta: importar a página não
-        # depende de o MongoDB estar no ar.
         return obter_banco_mongodb()
 
     @property
@@ -136,13 +129,41 @@ class TelemetriaService:
     def buscar_todos(self):
         return list(self.colecao.find())
 
-    def _ids_ultimas_leituras(self) -> list:
-        """_id da leitura mais recente de cada veículo (a posição atual)."""
-        return [t["telemetria_id"] for t in self.colecao.aggregate(pipeline_ultima_telemetria())]
+    def simular_movimentacao(self, variacao_graus: float = 0.001) -> int:
+        """Grava uma nova posição levemente deslocada para cada veículo atual."""
+        ultimas = self.buscar_ultima_telemetria()
+        agora = datetime.now(timezone.utc)
+        leituras = []
 
-    # --- Consultas geoespaciais (módulo 2) --------------------------------
-    # Consideram só a posição ATUAL de cada veículo: com histórico, uma
-    # posição antiga dentro do raio desenharia o mesmo veículo várias vezes.
+        for indice, leitura in enumerate(ultimas):
+            coordenadas = (leitura.get("location") or {}).get("coordinates") or []
+            if len(coordenadas) != 2:
+                continue
+
+            longitude, latitude = coordenadas
+            leituras.append(
+                {
+                    "veiculo_id": leitura["veiculo_id"],
+                    "location": {
+                        "type": "Point",
+                        "coordinates": [
+                            round(longitude + uniform(-variacao_graus, variacao_graus), 6),
+                            round(latitude + uniform(-variacao_graus, variacao_graus), 6),
+                        ],
+                    },
+                    "temperatura": round(leitura["temperatura"] + uniform(-0.2, 0.2), 1),
+                    "velocidade": max(0, round(leitura["velocidade"] + uniform(-5, 5), 1)),
+                    "timestamp": agora + timedelta(milliseconds=indice),
+                }
+            )
+
+        if leituras:
+            self.colecao.insert_many(leituras)
+
+        return len(leituras)
+
+    def _ids_ultimas_leituras(self) -> list:
+        return [t["telemetria_id"] for t in self.colecao.aggregate(pipeline_ultima_telemetria())]
 
     def buscar_veiculos_e_distancia(self, latitude, longitude, raio) -> list[dict[str, Any]]:
         pipeline = [
@@ -174,17 +195,12 @@ class TelemetriaService:
 
         return list(self.colecao.find(filtro))
 
-    # --- Dashboard (módulos 3 e 4) -----------------------------------------
-
     def buscar_ultima_telemetria(self, veiculo_ids: Optional[Iterable[int]] = None) -> list[dict[str, Any]]:
-        """Um documento por veículo: a leitura mais recente."""
         return list(self.colecao.aggregate(pipeline_ultima_telemetria(veiculo_ids)))
 
     def buscar_historico_temperatura(self, veiculo_ids: Optional[Iterable[int]] = None) -> list[dict[str, Any]]:
-        """veiculo_id, timestamp e temperatura de todas as leituras, em ordem de tempo."""
         return list(self.colecao.aggregate(pipeline_historico_temperatura(veiculo_ids)))
 
     def buscar_metricas_atuais(self, limite_velocidade: float = LIMITE_VELOCIDADE) -> dict[str, Any]:
-        """Temperatura média atual, alertas de velocidade (e quais veículos) e veículos parados."""
         resultado = list(self.colecao.aggregate(pipeline_metricas_atuais(limite_velocidade)))
         return resultado[0] if resultado else {**METRICAS_VAZIAS, "veiculos_em_alerta": []}
