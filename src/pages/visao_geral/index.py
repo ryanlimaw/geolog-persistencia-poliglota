@@ -9,7 +9,6 @@ from pages.comum import (
     tabela_para_exibicao,
 )
 
-# Módulo 3: visão unificada (join poliglota em memória).
 
 COLUNAS = [
     "motorista",
@@ -27,12 +26,6 @@ titulo, acao = st.columns([4, 1], vertical_alignment="bottom")
 titulo.title("Visão Geral da Frota")
 with acao:
     botao_atualizar()
-
-st.write(
-    "Cada linha junta o **cadastro do PostgreSQL** (motorista, placa, modelo e status) "
-    "com a **última leitura de telemetria do MongoDB** (temperatura, velocidade e posição GeoJSON). "
-    "Os dois bancos são cruzados em memória pelo identificador do veículo; nada é copiado de um para o outro."
-)
 
 try:
     visao = carregar_visao_integrada()
@@ -59,9 +52,3 @@ if sem_telemetria:
         + ". Os dados de cadastro aparecem mesmo assim.",
         icon=":material/info:",
     )
-
-st.caption(
-    f"{len(visao)} veículos · Motorista, Placa, Modelo e Status vêm do PostgreSQL · "
-    "Temperatura, Velocidade, Latitude, Longitude e Última Atualização vêm do MongoDB "
-    "(passe o cursor sobre o nome da coluna)."
-)

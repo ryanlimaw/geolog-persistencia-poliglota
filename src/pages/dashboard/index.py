@@ -52,9 +52,9 @@ st.caption(
     )
 )
 
-# ------------------------------------------------------------
-# KPIs
-# ------------------------------------------------------------
+# ============================================================
+# KPIS
+# ============================================================
 
 temperatura_media = indicadores["temperatura_media"]
 placas_paradas = situacao.loc[situacao["situacao"] == SITUACAO_PARADO, "placa"].tolist()
@@ -117,9 +117,9 @@ if sem_telemetria:
         icon=":material/info:",
     )
 
-# ------------------------------------------------------------
-# Situação de cada veículo
-# ------------------------------------------------------------
+# ============================================================
+# SITUACÃO DE CADA VEÍCULO
+# ============================================================
 
 st.subheader("Situação de cada veículo")
 st.caption("Cadastro (PostgreSQL) cruzado com a última leitura e o histórico de temperatura (MongoDB).")
@@ -162,9 +162,9 @@ st.dataframe(
     },
 )
 
-# ------------------------------------------------------------
-# Estado atual: velocidade e status dos motoristas
-# ------------------------------------------------------------
+# ============================================================
+# ESTADO ATUAL: VELOCIDADE E STATUS DOS MOTORISTAS
+# ============================================================
 
 coluna_velocidade, coluna_status = st.columns(2, gap="large", border=True)
 
@@ -184,9 +184,9 @@ with coluna_status:
     else:
         st.plotly_chart(grafico_status_motoristas(status), width="stretch")
 
-# ------------------------------------------------------------
-# Histórico de temperatura
-# ------------------------------------------------------------
+# ============================================================
+# HISTÓRICO DE TEMPERATURA
+# ============================================================
 
 st.subheader("Histórico de temperatura da carga")
 st.caption(

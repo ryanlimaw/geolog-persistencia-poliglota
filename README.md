@@ -11,6 +11,7 @@ A transportadora LogiTech Express opera uma frota de caminhões em diversas regi
 
 - **Telemetria e sensores IoT:** coordenadas GPS (GeoJSON), temperatura da carga e velocidade, armazenadas no MongoDB, com índice geoespacial `2dsphere` e buscas por proximidade.
 - **Dados cadastrais:** motoristas e veículos, armazenados no PostgreSQL para garantir integridade referencial e consultas estruturadas.
+- **Simulação de movimentação em tempo real:** o botão "Simular Movimentação" gera novas leituras para os veículos com pequenas variações aleatórias de GPS, velocidade e temperatura, grava os pontos no MongoDB e atualiza o mapa e os indicadores sem reiniciar a aplicação.
 
 A aplicação cruza os dois bancos em memória (join poliglota) e apresenta os resultados num mapa, numa visão unificada da frota e num dashboard analítico.
 
