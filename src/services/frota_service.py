@@ -155,12 +155,8 @@ class FrotaService:
         self.veiculos = VeiculoService()
         self.telemetria = TelemetriaService()
 
-    # Os três métodos abaixo aceitam a frota já carregada (`frota`): quem monta
-    # uma página inteira busca a frota no PostgreSQL uma vez e repassa, em vez
-    # de uma consulta igual por método. Sem o parâmetro, eles mesmos consultam.
-
     def listar_frota(self) -> list[dict]:
-        return self.veiculos.listar_frota()                     # 1 consulta ao PostgreSQL
+        return self.veiculos.listar_frota()                    
 
     def visao_integrada(self, frota: Optional[list[dict]] = None) -> pd.DataFrame:
         frota = self.listar_frota() if frota is None else frota
@@ -177,7 +173,6 @@ class FrotaService:
     def indicadores(
         self, limite_velocidade: float = LIMITE_VELOCIDADE, frota: Optional[list[dict]] = None
     ) -> dict:
-        """KPIs do dashboard: a frota ativa vem do PostgreSQL, o resto do MongoDB."""
         frota = self.listar_frota() if frota is None else frota
         metricas = self.telemetria.buscar_metricas_atuais(limite_velocidade)
         placas = {veiculo["veiculo_id"]: veiculo["placa"] for veiculo in frota}
