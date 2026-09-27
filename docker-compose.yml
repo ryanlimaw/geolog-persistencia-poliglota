@@ -1,24 +1,25 @@
 services:
 
+  # Serviço do PostgreSQL (motoristas e veículos)
   postgres-db:
     image: postgres:16-alpine
     container_name: db-geolog-postgres
     environment:
-      POSTGRES_USER: root
-      POSTGRES_PASSWORD: admin
-      POSTGRES_DB: geolog
+      POSTGRES_USER: ${POSTGRES_USER:-root}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-admin}
+      POSTGRES_DB: ${POSTGRES_DB:-geolog}
     ports:
-      - "5433:5432"
+      - "${POSTGRES_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
 
-  # Serviço do MongoDB
+  # Serviço do MongoDB (telemetria)
   mongo-db:
     image: mongo:7.0
     container_name: db-geolog-mongo
     environment:
-      MONGO_INITDB_ROOT_USERNAME: root
-      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:-root}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD:-admin}
     ports:
       - "27018:27017"
     volumes:

@@ -38,6 +38,9 @@ def criar_mapa(latitude: float, longitude: float, raio_km: float, geolog: list):
         fill_opacity=0.15,
     ).add_to(mapa)
 
+    # Cadastro da frota numa única consulta ao PostgreSQL (antes era uma por marcador).
+    frota = {veiculo["veiculo_id"]: veiculo for veiculo in veiculo_service.listar_frota()} if geolog else {}
+
     for telemetria in geolog:
         localizacao = telemetria.get("location")
         if not localizacao:
@@ -57,11 +60,11 @@ def criar_mapa(latitude: float, longitude: float, raio_km: float, geolog: list):
         else:
             distancia_texto = "Não calculada"
 
-        veiculo = veiculo_service.get_veiculo_by_id(telemetria.get("veiculo_id", 0))
+        veiculo = frota.get(telemetria.get("veiculo_id"), {})
 
         placa = veiculo.get("placa", "Não informado")
         modelo = veiculo.get("modelo", "Não informado")
-        status = veiculo.get("status", "Não informado")
+        status = veiculo.get("status_motorista", "Não informado")
 
         popup_html = f"""
             <div style="width: 220px">

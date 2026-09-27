@@ -63,7 +63,9 @@ buttonRadius = "0.75rem"
 # ============================================================
 
 dataframeBorderColor = "#D9D9D9"
-dataframeHeaderBackgroundColor = "#0B1F44"
+# Tom claro do azul da marca: o Streamlit não deixa trocar a cor do TEXTO do
+# cabeçalho, e com o azul-marinho (#0B1F44) os nomes das colunas sumiam.
+dataframeHeaderBackgroundColor = "#E8ECF3"
 
 # ============================================================
 # CÓDIGO

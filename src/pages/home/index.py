@@ -1,7 +1,7 @@
 import streamlit as st
 from streamlit_folium import st_folium
 from services.telemetria_service import TelemetriaService
-from src.pages.home.criar_mapa import criar_mapa
+from pages.home.criar_mapa import criar_mapa
 from geopy.geocoders import Nominatim
 
 telemetria_service = TelemetriaService()
@@ -36,12 +36,20 @@ if st.button( "Buscar veículos", type="primary", use_container_width=True ):
             st.exception(erro)
             st.stop()
 
+    # 0,0 é o valor inicial dos campos (e fica no oceano): sem endereço nem
+    # coordenadas preenchidas, não há o que buscar.
+    if latitude == 0 and longitude == 0:
+        st.warning("Informe um endereço ou a latitude e a longitude do ponto de referência.")
+        st.stop()
+
     try:
         with st.spinner("Carregando telemetria..."):
             if tipo_consulta == "Área Delimitada (Raio)":
-                veiculos = telemetria_service.buscar_veiculos_e_distancia(latitude, longitude, raio_km)
-            else:
+                # $geoWithin + $centerSphere: quem está dentro do círculo.
                 veiculos = telemetria_service.buscar_veiculos_proximos(latitude, longitude, raio_km)
+            else:
+                # $geoNear: os mais próximos primeiro, com a distância até o ponto.
+                veiculos = telemetria_service.buscar_veiculos_e_distancia(latitude, longitude, raio_km)
 
         st.session_state["ultima_busca"] = {
             "latitude": latitude,
@@ -56,10 +64,15 @@ if st.button( "Buscar veículos", type="primary", use_container_width=True ):
 
 if "ultima_busca" in st.session_state:
     busca = st.session_state["ultima_busca"]
-    mapa = criar_mapa(
-        busca["latitude"],
-        busca["longitude"],
-        busca["raio_km"],
-        busca["veiculos"],
-    )
+    try:
+        mapa = criar_mapa(
+            busca["latitude"],
+            busca["longitude"],
+            busca["raio_km"],
+            busca["veiculos"],
+        )
+    except Exception as erro:
+        st.error("Não foi possível consultar o PostgreSQL (placa, modelo e status dos veículos do mapa).")
+        st.exception(erro)
+        st.stop()
     st_folium(mapa, width=700, height=500, key="mapa_telemetria")
